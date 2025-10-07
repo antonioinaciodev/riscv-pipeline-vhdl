@@ -1,0 +1,25 @@
+# Pastas de compilacao e temporarias do Quartus
+output_files/
+db/
+incremental_db/
+simulation/
+greybox_tmp/
+
+# Arquivos de relatorio e log
+*.rpt
+*.summary
+*.log
+*.done
+*.qws
+*.bak
+*.qsf
+
+# Arquivos do ModelSim
+*.wlf
+transcript
+modelsim.ini
+work/
+
+# Outros
+c5_pin_model_dump.txt
+*~
