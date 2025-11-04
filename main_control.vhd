@@ -31,23 +31,23 @@ begin
         Branch   <= '0';
         ALUSrc   <= '0';
         Jump     <= '0';
-        ALUOp    <= "XX";
+        ALUOp    <= "11";
 
         case opcode is
             
-            when "0110011" =>
+            when "0110011" => --Tipo R
                 RegWrite <= '1'; ALUOp <= "10";
           
-            when "0010011" =>
+            when "0010011" => --Tipo I
                 RegWrite <= '1'; ALUSrc <= '1'; ALUOp <= "10";
         
-            when "0000011" =>
+            when "0000011" => --Tipo I load's
                 RegWrite <= '1'; MemRead <= '1'; MemtoReg <= '1'; ALUSrc <= '1'; ALUOp <= "00";
            
-            when "0100011" =>
+            when "0100011" => --Tipo S 
                 MemWrite <= '1'; ALUSrc <= '1'; ALUOp <= "00";
            
-            when "1100111" =>
+            when "1100011" => -- Tipo B (beq)
                 Branch <= '1'; ALUOp <= "01";
                 
            
