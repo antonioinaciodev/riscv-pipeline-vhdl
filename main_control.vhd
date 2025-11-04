@@ -47,7 +47,7 @@ begin
             when "0100011" =>
                 MemWrite <= '1'; ALUSrc <= '1'; ALUOp <= "00";
            
-            when "1100111" =>
+            when "1100011" =>
                 Branch <= '1'; ALUOp <= "01";
                 
            
@@ -58,7 +58,13 @@ begin
             when "1101111" =>
                 RegWrite <= '1';
                 Jump     <= '1';
-               
+			   when "0010111" => 
+                RegWrite <= '1'; ALUSrc <= '1'; ALUOp <= "00";
+            when "1100111" => 
+                RegWrite <= '1'; 
+                Jump     <= '1'; 
+                ALUSrc   <= '1'; 
+                ALUOp    <= "00"; 
             
             when others =>
                 null;
