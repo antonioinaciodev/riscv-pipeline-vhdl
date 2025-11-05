@@ -4,7 +4,7 @@ use ieee.numeric_std.all;
 
 entity banco_reg is
     port (
-        -- Entradas
+        
         clk        : in  std_logic; 
         RegWrite   : in  std_logic; 
         rr1_addr   : in  std_logic_vector(4 downto 0); 
@@ -12,7 +12,6 @@ entity banco_reg is
         wr_addr    : in  std_logic_vector(4 downto 0); 
         wr_data    : in  std_logic_vector(31 downto 0); 
 
-        -- Saidas
         rr1_data   : out std_logic_vector(31 downto 0);
         rr2_data   : out std_logic_vector(31 downto 0)  
     );
