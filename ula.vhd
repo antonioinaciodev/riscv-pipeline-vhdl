@@ -13,10 +13,11 @@ entity ULA_simplificada is
         DATA_WIDTH : integer := 32 -- Largura de dados de 32 bits, padrão para RISC-V
     );
     port (
-        -- Entradas
+        -- Entradas vindas dos muxs
         A_in        : in  std_logic_vector(DATA_WIDTH - 1 downto 0);
         B_in        : in  std_logic_vector(DATA_WIDTH - 1 downto 0);
-        ALU_OP_in   : in  std_logic_vector(2 downto 0); -- Seletor de operação reduzido para 3 bits
+        --Sinal de controle
+        ALU_OP_in   : in  std_logic_vector(3 downto 0); -- Vai receber da ula_control.vhd - ALUControl_out
 
         -- Saídas
         Result_out  : out std_logic_vector(DATA_WIDTH - 1 downto 0);
@@ -31,12 +32,11 @@ end entity ULA_simplificada;
 architecture RTL of ULA_simplificada is
 
     -- Definição dos códigos de operação para 3 bits
-    constant ALU_ADD  : std_logic_vector(2 downto 0) := "000";
-    constant ALU_SUB  : std_logic_vector(2 downto 0) := "001";
-    constant ALU_AND  : std_logic_vector(2 downto 0) := "010";
-    constant ALU_OR   : std_logic_vector(2 downto 0) := "011";
-    constant ALU_XOR  : std_logic_vector(2 downto 0) := "100";
-
+    constant ALU_ADD  : std_logic_vector(3 downto 0) := "0010";
+    constant ALU_SUB  : std_logic_vector(3 downto 0) := "0110";
+    constant ALU_AND  : std_logic_vector(3 downto 0) := "0000";
+    constant ALU_OR   : std_logic_vector(3 downto 0) := "0001";
+    constant ALU_XOR  : std_logic_vector(3 downto 0) := "0100";
     -- Sinal interno para o resultado
     signal result_s : std_logic_vector(DATA_WIDTH - 1 downto 0);
 

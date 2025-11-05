@@ -1,0 +1,186 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity tb_riscv_pipeline_top is
+end tb_riscv_pipeline_top;
+
+architecture Behavioral of tb_riscv_pipeline_top is
+
+    component riscv_pipeline_top is
+    port(
+        clk   : in std_logic;
+        reset : in std_logic;
+        
+        memWriteEX : in std_logic;
+        memReadEX  : in std_logic;
+        branchEX   : in std_logic;
+        memToRegEX : in std_logic;
+        regWriteEX : in std_logic;
+        
+        aluResultEX  : in std_logic_vector(31 downto 0);
+        writeDataEX  : in std_logic_vector(31 downto 0);
+        rdRegisterEX : in std_logic_vector(4 downto 0);
+        pcRegisterEX : in std_logic_vector(31 downto 0);
+        
+        readDataMEM_in : in std_logic_vector(31 downto 0);
+        
+        memWriteMEM_out : out std_logic;
+        memReadMEM_out  : out std_logic;
+        branchMEM_out   : out std_logic;
+        memToRegMEM_out : out std_logic;
+        regWriteMEM_out : out std_logic;
+        
+        aluResultMEM_out  : out std_logic_vector(31 downto 0);
+        writeDataMEM_out  : out std_logic_vector(31 downto 0);
+        rdRegisterMEM_out : out std_logic_vector(4 downto 0);
+        pcRegisterMEM_out : out std_logic_vector(31 downto 0);
+        
+        memToRegWEB_out : out std_logic;
+        regWriteWEB_out : out std_logic;
+        
+        aluResultWEB_out : out std_logic_vector(31 downto 0);
+        readDataWEB_out  : out std_logic_vector(31 downto 0);
+        rdRegisterWEB_out : out std_logic_vector(4 downto 0)
+    );
+    end component;
+
+    -- Sinais de teste
+    signal clk, reset : std_logic;
+    
+    -- Entradas EX
+    signal memWriteEX, memReadEX, branchEX, memToRegEX, regWriteEX : std_logic;
+    signal aluResultEX, writeDataEX, pcRegisterEX : std_logic_vector(31 downto 0);
+    signal rdRegisterEX : std_logic_vector(4 downto 0);
+    
+    -- Entrada MEM
+    signal readDataMEM_in : std_logic_vector(31 downto 0);
+    
+    -- Saídas MEM
+    signal memWriteMEM_out, memReadMEM_out, branchMEM_out, memToRegMEM_out, regWriteMEM_out : std_logic;
+    signal aluResultMEM_out, writeDataMEM_out, pcRegisterMEM_out : std_logic_vector(31 downto 0);
+    signal rdRegisterMEM_out : std_logic_vector(4 downto 0);
+    
+    -- Saídas WB
+    signal memToRegWEB_out, regWriteWEB_out : std_logic;
+    signal aluResultWEB_out, readDataWEB_out : std_logic_vector(31 downto 0);
+    signal rdRegisterWEB_out : std_logic_vector(4 downto 0);
+    
+    constant CLK_PERIOD : time := 10 ns;
+
+begin
+
+    -- Instância do top level
+    UUT: riscv_pipeline_top
+    port map(
+        clk => clk,
+        reset => reset,
+        
+        memWriteEX => memWriteEX,
+        memReadEX => memReadEX,
+        branchEX => branchEX,
+        memToRegEX => memToRegEX,
+        regWriteEX => regWriteEX,
+        
+        aluResultEX => aluResultEX,
+        writeDataEX => writeDataEX,
+        rdRegisterEX => rdRegisterEX,
+        pcRegisterEX => pcRegisterEX,
+        
+        readDataMEM_in => readDataMEM_in,
+        
+        memWriteMEM_out => memWriteMEM_out,
+        memReadMEM_out => memReadMEM_out,
+        branchMEM_out => branchMEM_out,
+        memToRegMEM_out => memToRegMEM_out,
+        regWriteMEM_out => regWriteMEM_out,
+        
+        aluResultMEM_out => aluResultMEM_out,
+        writeDataMEM_out => writeDataMEM_out,
+        rdRegisterMEM_out => rdRegisterMEM_out,
+        pcRegisterMEM_out => pcRegisterMEM_out,
+        
+        memToRegWEB_out => memToRegWEB_out,
+        regWriteWEB_out => regWriteWEB_out,
+        
+        aluResultWEB_out => aluResultWEB_out,
+        readDataWEB_out => readDataWEB_out,
+        rdRegisterWEB_out => rdRegisterWEB_out
+    );
+
+    -- Processo do clock
+    clock_process: process
+    begin
+        clk <= '0';
+        wait for CLK_PERIOD/2;
+        clk <= '1';
+        wait for CLK_PERIOD/2;
+    end process;
+
+    -- Processo de teste
+    test_process: process
+    begin
+        -- Reset inicial
+        reset <= '1';
+        wait for CLK_PERIOD;
+        reset <= '0';
+        
+        -- Teste 1: Instrução LW (Load Word)
+        -- lw x10, 0(x11)
+        memWriteEX <= '0';
+        memReadEX <= '1';
+        branchEX <= '0';
+        memToRegEX <= '1';
+        regWriteEX <= '1';
+        
+        aluResultEX <= x"00001000";  -- Endereço calculado
+        writeDataEX <= x"00000000";  -- Não usado em LW
+        rdRegisterEX <= "01010";     -- x10
+        pcRegisterEX <= x"00400004";
+        
+        readDataMEM_in <= x"12345678";  -- Dado lido da memória
+        
+        wait for CLK_PERIOD;
+        
+        -- Verificar se os sinais se propagaram corretamente
+        -- Após 1 clock: EX→MEM
+        -- Após 2 clocks: MEM→WB
+        
+        -- Teste 2: Instrução ADD
+        -- add x11, x12, x13
+        memWriteEX <= '0';
+        memReadEX <= '0';
+        branchEX <= '0';
+        memToRegEX <= '0';
+        regWriteEX <= '1';
+        
+        aluResultEX <= x"0000000F";  -- Resultado da soma
+        writeDataEX <= x"00000000";
+        rdRegisterEX <= "01011";     -- x11
+        pcRegisterEX <= x"00400008";
+        
+        wait for CLK_PERIOD;
+        
+        -- Teste 3: Instrução SW (Store Word)
+        -- sw x14, 0(x15)
+        memWriteEX <= '1';
+        memReadEX <= '0';
+        branchEX <= '0';
+        memToRegEX <= '0';
+        regWriteEX <= '0';
+        
+        aluResultEX <= x"00001004";  -- Endereço
+        writeDataEX <= x"ABCD1234";  -- Dado a ser armazenado
+        rdRegisterEX <= "00000";     -- Não usado
+        pcRegisterEX <= x"0040000C";
+        
+        wait for CLK_PERIOD;
+        
+        -- Aguardar mais alguns ciclos para ver a propagação completa
+        wait for 2 * CLK_PERIOD;
+        
+        report "Teste concluído!" severity note;
+        wait;
+    end process;
+
+end Behavioral;
