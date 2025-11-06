@@ -22,6 +22,8 @@ entity id_ex_registrador is
 		  -- importante para os estagios seguintes
 		  rs1_addr_in    : in std_logic_vector(4 downto 0);  -- Novo
         rs2_addr_in    : in std_logic_vector(4 downto 0);  -- Novo
+		  funct7_in    : in std_logic_vector(6 downto 0); -- novo
+		  funct3_in : in std_logic_vector(2 downto 0);
         
         
         memread_out  : out std_logic; 
@@ -38,6 +40,8 @@ entity id_ex_registrador is
 		  -- importante para os estagios seguintes
 		  rs1_addr_out    : out std_logic_vector(4 downto 0);  -- Novo
         rs2_addr_out    : out std_logic_vector(4 downto 0);  -- Novo
+		  funct7_out   : out std_logic_vector(6 downto 0);  -- Novo
+		  funct3_out : out std_logic_vector(2 downto 0);
         rd_addr_out     : out std_logic_vector(4 downto 0)
     );
 end entity id_ex_registrador;
@@ -60,6 +64,8 @@ begin
 				rs1_addr_out    <= (others =>'0'); --novo
 				rs2_addr_out    <= (others =>'0'); -- novo 
             rd_addr_out     <= (others => '0');
+				funct7_out <= (others => '0');
+				funct3_out <= (others => '0');
         elsif rising_edge(clk) then
             memread_out  <= memread_in; 
             memtoreg_out <= memtoreg_in;
@@ -74,6 +80,8 @@ begin
 				rs1_addr_out <= rs1_addr_in;
 				rs2_addr_out <= rs2_addr_in;
             rd_addr_out     <= rd_addr_in;
+				funct7_out <= funct7_in;
+				funct3_out <= funct3_in;
         end if;
     end process;
 end architecture behavioral;
