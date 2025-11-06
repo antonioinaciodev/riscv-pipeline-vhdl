@@ -20,9 +20,9 @@ architecture structural of pipeline_toplevel is
     component branch_condition_unit is port (read_data_1 : in  std_logic_vector(31 downto 0);read_data_2 : in  std_logic_vector(31 downto 0);funct3: in  std_logic_vector(2 downto 0); condition_met : out std_logic ); end component;
 	 
 	 component id_ex_registrador is port (clk : in std_logic; rst : in std_logic; memwrite_in : in std_logic; memread_in : in std_logic; memtoreg_in : in std_logic; regwrite_in : in std_logic; alusrc_in : std_logic; aluop_in : std_logic_vector(1 downto 0); branch_in : in std_logic;
-													  read_data_1_in : in std_logic_vector(31 downto 0); read_data_2_in : in std_logic_vector(31 downto 0); immediate_in   : in std_logic_vector(31 downto 0); rd_addr_in : in std_logic_vector(4 downto 0); rs1_addr_in : in std_logic_vector(4 downto 0); rs2_addr_in : in std_logic_vector(4 downto 0);
+													  read_data_1_in : in std_logic_vector(31 downto 0); read_data_2_in : in std_logic_vector(31 downto 0); immediate_in   : in std_logic_vector(31 downto 0); rd_addr_in : in std_logic_vector(4 downto 0); rs1_addr_in : in std_logic_vector(4 downto 0); rs2_addr_in : in std_logic_vector(4 downto 0); funct7_in : in std_logic_vector(6 downto 0); funct3_in : in std_logic_vector(2 downto 0);
 													  memread_out  : out std_logic;  memtoreg_out : out std_logic; memwrite_out : out std_logic; branch_out : out std_logic; regwrite_out : out std_logic; alusrc_out : out std_logic; aluop_out : out std_logic_vector(1 downto 0);
-													  read_data_1_out : out std_logic_vector(31 downto 0); read_data_2_out : out std_logic_vector(31 downto 0); immediate_out : out std_logic_vector(31 downto 0); rs1_addr_out : out std_logic_vector(4 downto 0); rs2_addr_out : out std_logic_vector(4 downto 0); rd_addr_out : out std_logic_vector(4 downto 0)
+													  read_data_1_out : out std_logic_vector(31 downto 0); read_data_2_out : out std_logic_vector(31 downto 0); immediate_out : out std_logic_vector(31 downto 0); rs1_addr_out : out std_logic_vector(4 downto 0); rs2_addr_out : out std_logic_vector(4 downto 0); rd_addr_out : out std_logic_vector(4 downto 0); funct7_out : out std_logic_vector(6 downto 0);funct3_out : out std_logic_vector(2 downto 0)
 													  ); end component;
 													  
 	 component ex_mem_register is port (clk : in std_logic; reset: in std_logic; memWriteEX : in std_logic; memReadEX : in std_logic; branchEX : in std_logic; memToRegEX : in std_logic; regWriteEX: in std_logic;
@@ -37,15 +37,15 @@ architecture structural of pipeline_toplevel is
 													aluResultWEB : out std_logic_vector(31 downto 0); readDataWEB: out std_logic_vector(31 downto 0); rdRegisterWEB : out std_logic_vector(4 downto 0)
 													);end component;
 	 component ULA_simplificada is generic ( DATA_WIDTH : integer := 32);
-											 port (A_in : in std_logic_vector(DATA_WIDTH - 1 downto 0); B_in : in  std_logic_vector(DATA_WIDTH - 1 downto 0); ALU_OP_in : in  std_logic_vector(2 downto 0);
+											 port (A_in : in std_logic_vector(DATA_WIDTH - 1 downto 0); B_in : in  std_logic_vector(DATA_WIDTH - 1 downto 0); ALU_OP_in : in  std_logic_vector(3 downto 0);
 													 Result_out : out std_logic_vector(DATA_WIDTH - 1 downto 0); Z_out : out std_logic; N_out : out std_logic
 													);end component;
 	 component forwardingUnit is port (id_ex_registerR1: in std_logic_vector(4 downto 0); id_ex_registerR2: in std_logic_vector(4 downto 0); ex_mem_registerRD: in std_logic_vector(4 downto 0); mem_wb_registerRD: in std_logic_vector(4 downto 0); 
 	                                   ex_mem_registerWrite: in std_logic; mem_wb_registerWrite: in std_logic;
 												  forward_A: out std_logic_vector(1 downto 0); forward_B: out std_logic_vector(1 downto 0)
 													);end component;
-	 component aluControl is port (aluOP : in std_logic_vector(1 downto 0); funct7 : in std_logic; funct3 : in std_logic_vector(2 downto 0);
-											 aluControl_out: out std_logic_vector(2 downto 0)
+	 component ULA_control is port (ALUOp_in : in std_logic_vector(1 downto 0); funct7_in : in std_logic_vector(6 downto 0); funct3_in : in std_logic_vector(2 downto 0);
+											 ALUControl_out: out std_logic_vector(3 downto 0)
 											);end component;
 														
   
@@ -59,20 +59,20 @@ architecture structural of pipeline_toplevel is
 	 signal id_jalr_base_addr     : signed(31 downto 0);
 	 signal pc_mux_select         : std_logic_vector(1 downto 0); 
     signal if_flush_signal       : std_logic; 
-    signal ex_pc_plus_4          : std_logic_vector(31 downto 0); 
+     
 	 signal if_pc_address, if_pc_plus_4, if_fetched_instruction: std_logic_vector(31 downto 0);
     signal next_pc_address : std_logic_vector(31 downto 0);
 	 signal id_pc_plus_4, id_instruction: std_logic_vector(31 downto 0);
     signal id_rs1, id_rs2, id_rd: std_logic_vector(4 downto 0);
-    signal ex_pc_address     : std_logic_vector(31 downto 0);
+    
 	 signal id_reg_read_data_1, id_reg_read_data_2, id_immediate: std_logic_vector(31 downto 0);
+	 
     signal id_memread, id_regwrite, id_memtoreg, id_alusrc, id_memwrite, id_branch, id_jump: std_logic;
     signal id_aluop: std_logic_vector(1 downto 0);
     signal final_id_regwrite, final_id_memtoreg, final_id_alusrc, final_id_memread, final_id_memwrite, final_id_branch: std_logic;
     signal final_id_aluop: std_logic_vector(1 downto 0);
-	 signal ex_read_data_1  : std_logic_vector(31 downto 0); 
-    signal ex_read_data_2  : std_logic_vector(31 downto 0);
-    signal ex_immediate    : std_logic_vector(31 downto 0);
+	 
+    
     signal wb_regwrite_control: std_logic := '0';
 	 signal id_pc_address     : std_logic_vector(31 downto 0);
     signal wb_rd_addr: std_logic_vector(4 downto 0) := (others => '0');
@@ -86,6 +86,8 @@ architecture structural of pipeline_toplevel is
 	 signal id_ex_aluop : std_logic_vector(1 downto 0);
 	 signal id_ex_read_data_1, id_ex_read_data_2, id_ex_immediate : std_logic_vector(31 downto 0);
 	 signal id_ex_rs1_addr, id_ex_rs2_addr, id_ex_rd_addr : std_logic_vector(4 downto 0);
+	 signal id_ex_funct7 : std_logic_vector(6 downto 0); -- novo
+	 signal id_ex_funct3 : std_logic_vector(2 downto 0);
 	 
 	 -- sinais ex/mem
 	 signal ex_mem_memWrite, ex_mem_memRead, ex_mem_branch, ex_mem_memToReg, ex_mem_regWrite : std_logic;
@@ -93,7 +95,7 @@ architecture structural of pipeline_toplevel is
 	 signal ex_mem_rdRegister : std_logic_vector(4 downto 0);
 	 
 	 signal alu_a_input, alu_b_input, alu_result : std_logic_vector(31 downto 0);
-	 signal alu_control_signal : std_logic_vector(2 downto 0);
+	 signal alu_control_signal : std_logic_vector(3 downto 0);
 	 signal alu_zero, alu_negative : std_logic;
 	 
 	 --sinais foewarding unit
@@ -139,11 +141,11 @@ begin
     if_id_reg_unit : component if_id_registrador port map (clk=>clk, rst=>rst,pc_in=> if_pc_address,pc_out=> id_pc_address, write_enable=>if_id_write, pc_plus_4_in=>if_pc_plus_4, instruction_in=>if_instruction_to_id, pc_plus_4_out=>id_pc_plus_4, instruction_out=>id_instruction);
 
     
-    id_rs1 <= id_instruction(19 downto 15);
-    id_rs2 <= id_instruction(24 downto 20);
-    id_rd  <= id_instruction(11 downto 7);
-	 id_opcode <= id_instruction(6 downto 0);
-	 id_funct3 <= id_instruction(14 downto 12);
+    id_rs1 <= id_instruction(19 downto 15); -- ????
+    id_rs2 <= id_instruction(24 downto 20); --- ???
+    id_rd  <= id_instruction(11 downto 7); --- ??
+	 id_opcode <= id_instruction(6 downto 0); ---???
+	 id_funct3 <= id_instruction(14 downto 12); --- ????
     
     main_control_unit : component control port map (opcode => id_opcode, RegWrite=>id_regwrite, MemtoReg=>id_memtoreg, ALUSrc=>id_alusrc, ALUOp=>id_aluop, MemRead=>id_memread, MemWrite=>id_memwrite, Branch=>id_branch, Jump=>id_jump);
     imm_gen_unit : component gerador_imediato port map (instruction=>id_instruction, immediate_out=>id_immediate);
@@ -175,10 +177,10 @@ begin
     ID_EX_REG: id_ex_registrador port map(clk => clk, rst => rst,
 					-- Entradas do estágio ID
 					memread_in => final_id_memread, memtoreg_in => final_id_memtoreg, memwrite_in => final_id_memwrite, regwrite_in => final_id_regwrite, alusrc_in => final_id_alusrc, aluop_in => final_id_aluop, branch_in => final_id_branch, 
-					read_data_1_in => id_reg_read_data_1, read_data_2_in => id_reg_read_data_2, immediate_in => id_immediate, rd_addr_in => id_rd, rs1_addr_in => id_rs1, rs2_addr_in => id_rs2,
+					read_data_1_in => id_reg_read_data_1, read_data_2_in => id_reg_read_data_2, immediate_in => id_immediate, rd_addr_in => id_rd, rs1_addr_in => id_rs1, rs2_addr_in => id_rs2, funct7_in => id_instruction(31 downto 25),funct3_in => id_instruction(14 downto 12),
 					-- Saídas para o estágio EX
 					memread_out => id_ex_memread, memtoreg_out => id_ex_memtoreg, memwrite_out => id_ex_memwrite, branch_out => id_ex_branch, regwrite_out => id_ex_regwrite, alusrc_out => id_ex_alusrc, aluop_out => id_ex_aluop,
-					read_data_1_out => id_ex_read_data_1, read_data_2_out => id_ex_read_data_2, immediate_out => id_ex_immediate, rs1_addr_out => id_ex_rs1_addr, rs2_addr_out => id_ex_rs2_addr, rd_addr_out => id_ex_rd_addr
+					read_data_1_out => id_ex_read_data_1, read_data_2_out => id_ex_read_data_2, immediate_out => id_ex_immediate, rs1_addr_out => id_ex_rs1_addr, rs2_addr_out => id_ex_rs2_addr, rd_addr_out => id_ex_rd_addr, funct7_out => id_ex_funct7,funct3_out => id_ex_funct3
 					);
 	-- forwarding unit
 	FORWARDING_UNIT: forwardingUnit port map(id_ex_registerR1 => id_ex_rs1_addr, id_ex_registerR2 => id_ex_rs2_addr, ex_mem_registerRD => ex_mem_rdRegister, mem_wb_registerRD => mem_wb_rdRegister, ex_mem_registerWrite => ex_mem_regWrite, mem_wb_registerWrite => mem_wb_regWrite,
@@ -214,10 +216,10 @@ begin
         end if;
     end process;
 	  -- Instância do controle da ULA
-    ALU_CTRL: aluControl port map(aluOP => id_ex_aluop,
-        funct7 => id_ex_immediate(30),  -- bit 30 do imediato (funct7)
-        funct3 => id_ex_immediate(14 downto 12),  -- bits 14-12 (funct3)
-        aluControl_out => alu_control_signal
+    ULA_CTRL: ULA_control port map(ALUOp_in  => id_ex_aluop,
+        funct7_in => id_ex_funct7,  -- bit 30 do imediato (funct7)
+        funct3_in => id_ex_funct3,  -- bits 14-12 (funct3)
+        ALUControl_out => alu_control_signal
     );
 	  -- Instância da ULA
     ALU: ULA_simplificada
