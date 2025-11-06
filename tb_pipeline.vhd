@@ -33,9 +33,10 @@ begin
     stimulus_process: process
     begin
         rst_tb <= '1';      -- Ativa o reset
-        wait for 20 ns;     -- Segura por 20ns
+        wait for 10 ns;     -- Segura por 20ns
         rst_tb <= '0';      -- Libera o reset
         wait;               -- Fim do teste
     end process;
+
 
 end architecture test;
