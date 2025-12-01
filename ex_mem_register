@@ -18,6 +18,7 @@ port(
 		writeDataEX: in std_logic_vector(31 downto 0);
 		rdRegisterEX : in std_logic_vector(4 downto 0);
 		pcRegisterEX: in std_logic_vector(31 downto 0);
+		funct3EX: in std_logic_vector(2 downto 0);
 		
 
 		memWriteMEM : out std_logic;
@@ -29,6 +30,7 @@ port(
 		aluResultMEM : out std_logic_vector(31 downto 0);
 		writeDataMEM: out std_logic_vector(31 downto 0);
 		rdRegisterMEM : out std_logic_vector(4 downto 0);
+		funct3MEM: out std_logic_vector(2 downto 0);
 		pcRegisterMEM: out std_logic_vector(31 downto 0)
 );
 
@@ -52,6 +54,8 @@ begin
 			writeDataMEM <= (others=>'0');
 			rdRegisterMEM <= (others=>'0');
 			pcRegisterMEM <= (others =>'0');
+			funct3MEM <= (others =>'0');
+			
 		elsif rising_edge(clk) then
 			
 			memWriteMEM <= memWriteEX;
@@ -64,6 +68,7 @@ begin
 			writeDataMEM <= writeDataEX;
 			rdRegisterMEM <= rdRegisterEX;
 			pcRegisterMEM <= pcRegisterEX;
+			funct3MEM <= funct3EX;
 		end if;
 	end process;
 end behavioral;
