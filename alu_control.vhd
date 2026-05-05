@@ -1,8 +1,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
-
-entity ULA_control is
+entity alu_control is
     port (
         -- Entradas
         ALUOp_in  : in  std_logic_vector(1 downto 0); -- Vem do id_ex_register.vhd - aluop_out
@@ -10,13 +9,13 @@ entity ULA_control is
         funct7_in : in  std_logic_vector(6 downto 0); -- Campo 'funct7' da instrução
 
         -- Saída (1)
-        ALUControl_out : out std_logic_vector(3 downto 0) -- Sinal de controle para a ULA
+        ALUControl_out : out std_logic_vector(3 downto 0) -- Sinal de controle para a ALU
     );
-end entity ULA_control;
+end entity alu_control;
 
-architecture Behavioral of ULA_control is
+architecture Behavioral of alu_control is
 
-    -- Códigos de operação da ULA (devem ser os mesmos definidos em ula.vhd)
+    -- Códigos de operação da ALU (devem ser os mesmos definidos em alu.vhd)
     constant ALU_ADD  : std_logic_vector(3 downto 0) := "0010";
     constant ALU_SUB  : std_logic_vector(3 downto 0) := "0110";
     constant ALU_AND  : std_logic_vector(3 downto 0) := "0000";
@@ -25,11 +24,11 @@ architecture Behavioral of ULA_control is
 
 begin
 
-    -- Processo para decodificar as entradas e gerar o sinal de controle da ULA
-    process(ALUOp_in , funct3_in , funct7_in) -- Usar 'all' é a prática recomendada para lógica combinacional
+    -- Processo para decodificar as entradas e gerar o sinal de controle da ALU
+    process(ALUOp_in , funct3_in , funct7_in) 
     begin
         case ALUOp_in is
-            -- Caso para instruções do tipo Load/Store (LW/SW): ULA faz uma soma
+            -- Caso para instruções do tipo Load/Store (LW/SW): ALU faz uma soma
             when "00" =>
                 ALUControl_out <= ALU_ADD;
 

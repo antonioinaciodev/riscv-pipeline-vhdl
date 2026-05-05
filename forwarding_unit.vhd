@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity forwardingUnit is 
+entity forwarding_unit is 
 port (
     id_ex_registerR1: in std_logic_vector(4 downto 0);
     id_ex_registerR2: in std_logic_vector(4 downto 0);
@@ -22,10 +22,10 @@ port (
 
 );
 
-end entity forwardingUnit;
+end entity forwarding_unit;
 
 
-architecture behavioral of forwardingUnit is
+architecture behavioral of forwarding_unit is
 begin
     process(id_ex_registerR1, id_ex_registerR2, ex_mem_registerRD, mem_wb_registerRD,
             ex_mem_registerWrite, mem_wb_registerWrite, ex_mem_memRead)

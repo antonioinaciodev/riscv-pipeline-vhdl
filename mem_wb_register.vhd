@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity mem_web_register is 
+entity mem_wb_register is 
 port(
 		clk : in std_logic;
 		reset: in std_logic;
@@ -23,10 +23,10 @@ port(
 		
 );
 
-end mem_web_register;
+end mem_wb_register;
 
 
-architecture Behavioral of mem_web_register is
+architecture Behavioral of mem_wb_register is
 begin 
 	process(clk, reset)
 	begin

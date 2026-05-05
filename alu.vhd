@@ -6,9 +6,9 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 ----------------------------------------------------------------------------------
--- Entidade da ULA
+-- Entidade da ALU
 ----------------------------------------------------------------------------------
-entity ULA_simplificada is
+entity alu is
     generic (
         DATA_WIDTH : integer := 32
     );
@@ -23,14 +23,14 @@ entity ULA_simplificada is
         Z_out       : out std_logic;
         N_out       : out std_logic
     );
-end entity ULA_simplificada;
+end entity alu;
 
 ----------------------------------------------------------------------------------
--- Arquitetura da ULA
+-- Arquitetura da ALU
 ----------------------------------------------------------------------------------
-architecture RTL of ULA_simplificada is
+architecture RTL of alu is
 
-    -- Definição dos códigos de operação para 4 bits (compatível com ULA_control)
+    -- Definição dos códigos de operação para 4 bits (compatível com alu_control)
     constant ALU_ADD  : std_logic_vector(3 downto 0) := "0010";
     constant ALU_SUB  : std_logic_vector(3 downto 0) := "0110";
     constant ALU_AND  : std_logic_vector(3 downto 0) := "0000";
@@ -42,7 +42,7 @@ architecture RTL of ULA_simplificada is
 
 begin
 
-    -- Processo principal da ULA
+    -- Processo principal da ALU
     process(A_in, B_in, ALU_OP_in)
     begin
         case ALU_OP_in is

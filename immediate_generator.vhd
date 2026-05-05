@@ -2,16 +2,16 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity gerador_imediato is
+entity immediate_generator is
     port (
         -- Entrada: A instrucao completa de 32 bits
         instruction   : in  std_logic_vector(31 downto 0);
         -- Saida: O imediato de 32 bits, montado e com extensao de sinal
         immediate_out : out std_logic_vector(31 downto 0)
     );
-end entity gerador_imediato;
+end entity immediate_generator;
 
-architecture behavioral of gerador_imediato is
+architecture behavioral of immediate_generator is
     signal opcode : std_logic_vector(6 downto 0);
 begin
     opcode <= instruction(6 downto 0);

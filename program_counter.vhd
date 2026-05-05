@@ -1,0 +1,30 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity program_counter is
+    port (
+        clk          : in  std_logic;
+        rst          : in  std_logic;
+        write_enable : in  std_logic; 
+		pc_in        : in  std_logic_vector(31 downto 0);
+        pc_out       : out std_logic_vector(31 downto 0)
+    );
+end entity program_counter;
+
+architecture behavioral of program_counter is
+    signal pc_reg : std_logic_vector(31 downto 0);
+begin
+    pc_process: process(clk, rst)
+    begin
+        if rst = '1' then
+            pc_reg <= (others => '0');
+        elsif rising_edge(clk) then
+            if write_enable = '1' then 
+                pc_reg <= pc_in;
+            end if;
+        end if;
+    end process pc_process;
+
+    pc_out <= pc_reg;
+end architecture behavioral;

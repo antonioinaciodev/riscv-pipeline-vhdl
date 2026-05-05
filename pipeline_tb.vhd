@@ -1,10 +1,10 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-entity tb_pipeline is
-end entity tb_pipeline;
+entity pipeline_tb is
+end entity pipeline_tb;
 
-architecture test of tb_pipeline is
+architecture test of pipeline_tb is
     -- Componente que vamos testar
     component pipeline_toplevel is
         port (

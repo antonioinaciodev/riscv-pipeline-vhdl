@@ -8,7 +8,7 @@ entity if_id_registrador is
         rst            : in  std_logic;
         write_enable   : in  std_logic;
         
-		  pc_in          : in  std_logic_vector(31 downto 0);
+		pc_in          : in  std_logic_vector(31 downto 0);
         pc_plus_4_in   : in  std_logic_vector(31 downto 0);
         instruction_in : in  std_logic_vector(31 downto 0);
         
