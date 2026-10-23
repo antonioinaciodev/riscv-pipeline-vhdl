@@ -6,7 +6,7 @@ Implementação em **VHDL** de um processador **RISC-V de 32 bits (RV32I)** com
 arquitetura **pipeline de 5 estágios**, com resolução de *hazards* de dados e de
 controle em hardware.
 
-Projeto desenvolvido em equipe para a disciplina de Arquitetura de Computadores
+Projeto desenvolvido em equipe para a disciplina de Tópicos em Arquitetura de Computadores
 (Ciência da Computação – UFPI).
 
 > **Começando agora no projeto?** Leia primeiro [`docs/MUDANCAS.md`](docs/MUDANCAS.md),
