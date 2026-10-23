@@ -1,0 +1,33 @@
+﻿# Quartus
+db/
+incremental_db/
+output_files/
+simulation/
+greybox_tmp/
+*.qws
+*.bak
+*.rpt
+*.summary
+*.smsg
+*.done
+*.jdi
+*.pin
+*.sld
+*.sof
+
+# ModelSim / Questa
+work/
+rtl_work/
+transcript
+*.wlf
+modelsim.ini
+
+# GHDL
+*.cf
+*.o
+*.vcd
+*.ghw
+
+# Sistema
+.DS_Store
+Thumbs.db
