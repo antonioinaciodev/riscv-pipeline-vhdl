@@ -1,64 +1,130 @@
-# 🖥️ Processador RISC-V Pipeline (VHDL)
+# Processador RISC-V Pipeline (VHDL)
 
-## 📌 Sobre o Projeto
-Este repositório contém a implementação em **VHDL** de um processador **RISC-V de 32 bits**, construído com uma arquitetura **Pipeline de 5 estágios**. 
+![tests](https://github.com/antonioinaciodev/riscv-pipeline-vhdl/actions/workflows/ci.yml/badge.svg)
 
-O projeto foi desenvolvido em equipe como trabalho prático para a disciplina de Arquitetura de Computadores (Ciência da Computação - UFPI). O objetivo principal foi aplicar conceitos avançados de design de hardware em baixo nível, explorando o paralelismo em nível de instrução (ILP) e resolvendo conflitos (*hazards*) de dados e controle nativamente no hardware.
+Implementação em **VHDL** de um processador **RISC-V de 32 bits (RV32I)** com
+arquitetura **pipeline de 5 estágios**, com resolução de *hazards* de dados e de
+controle em hardware.
 
-## 🧠 Arquitetura Implementada
-O caminho de dados (*Datapath*) foi rigorosamente segmentado nos 5 estágios clássicos do RISC-V, com seus respectivos registradores de barreira:
+Projeto desenvolvido em equipe para a disciplina de Arquitetura de Computadores
+(Ciência da Computação – UFPI).
 
-1. **IF (Instruction Fetch):** Busca da instrução (`instruction_memory`, `program_counter`).
-2. **ID (Instruction Decode):** Decodificação e leitura de registradores (`register_file`, `if_id_register`, `immediate_generator`).
-3. **EX (Execute):** Execução lógica/aritmética (`alu`, `alu_control`, `id_ex_register`).
-4. **MEM (Memory Access):** Acesso à memória de dados (`data_memory`, `ex_mem_register`).
-5. **WB (Write Back):** Escrita do resultado nos registradores (`mem_wb_register`).
+> **Começando agora no projeto?** Leia primeiro [`docs/MUDANCAS.md`](docs/MUDANCAS.md),
+> que explica a estrutura de pastas, a ordem de compilação e as decisões de design.
 
-**Módulos de Resolução de Hazards:**
-Para lidar com os estolamentos e problemas causados pela arquitetura paralela, foram implementadas as seguintes unidades de controle:
-* **Forwarding Unit (`forwarding_unit`):** Resolve *Data Hazards* adiantando dados da saída da ALU (estágio EX/MEM) ou da Memória (estágio MEM/WB) diretamente para a entrada da ALU, evitando pausas desnecessárias.
-* **Hazard Detection Unit (`hazard_detection_unit`):** Identifica dependências estritas de leitura/escrita (*Load-Use hazards*) e insere bolhas (*stall* / NOP) no fluxo do pipeline quando o adiantamento não é possível.
-* **Branch Condition Unit (`branch_condition_unit`):** Avalia os saltos condicionais em paralelo, otimizando o recálculo do PC.
+---
 
-## ⚙️ Como Executar e Simular
-O projeto foi estruturado para ser sintetizado no **Intel Quartus Prime** e simulado no **ModelSim** (ou Questa - Intel FPGA Edition).
+## Arquitetura
 
-### 1. Simulação no ModelSim (Recomendado)
-Para visualizar as formas de onda (*Waveforms*) e verificar as instruções rodando ciclo a ciclo no processador:
+O caminho de dados é segmentado nos 5 estágios clássicos, com registradores de barreira
+entre eles:
 
-1. Abra o ModelSim.
-2. Crie uma biblioteca de trabalho digitando no console (*Transcript*):
-   
+| Estágio | Função | Módulos |
+|---|---|---|
+| **IF** | Busca da instrução | `program_counter`, `instruction_memory` |
+| **ID** | Decodificação e leitura de registradores | `register_file`, `main_control`, `immediate_generator`, `if_id_register` |
+| **EX** | Execução lógica/aritmética | `alu`, `alu_control`, `id_ex_register` |
+| **MEM** | Acesso à memória de dados | `data_memory`, `ex_mem_register` |
+| **WB** | Escrita no banco de registradores | `mem_wb_register` |
+
+**Resolução de hazards:**
+- `forwarding_unit` — adianta resultados da ALU/memória para evitar paradas em *data hazards*.
+- `hazard_detection_unit` — insere bolhas (*stall*) em *load-use hazards* que o forwarding não cobre.
+- `branch_condition_unit` — avalia saltos condicionais.
+
+---
+
+## Instruções suportadas (RV32I)
+
+| Tipo | Instruções |
+|---|---|
+| **R** | `add`, `sub`, `and`, `or`, `xor`, `sll`, `srl`, `sra`, `slt`, `sltu` |
+| **I** | `addi`, `andi`, `ori`, `xori`, `slli`, `srli`, `srai`, `slti`, `sltiu` |
+| **Load/Store** | `lw`, `sw` |
+| **Branch** | `beq`, `bne`, `blt`, `bge`, `bltu`, `bgeu` |
+
+Limitações conhecidas (em desenvolvimento): saltos (`jal`, `jalr`) e `lui`/`auipc`
+parcialmente implementados; sem `fence`/`ecall`/`ebreak`. Veja `docs/MUDANCAS.md`.
+
+---
+
+## Estrutura do repositório
+
+```
+riscv-pipeline-vhdl/
+├── rtl/          # módulos do processador (.vhd)
+├── tb/           # testbenches
+├── programs/     # programas de teste (.hex)
+├── quartus/      # projeto do Quartus (pipeline.qpf, pipeline.qsf)
+├── scripts/      # script de simulação do ModelSim (sim.do)
+├── docs/         # documentação
+└── run_tests.sh  # roda todos os testes (usado pelo CI)
+```
+
+---
+
+## Como simular
+
+### Opção 1 — ModelSim / Questa (visual, com formas de onda)
+
+No console (*Transcript*) do ModelSim, a partir da pasta `quartus/`:
+
 ```tcl
-   vlib work
-   ```
-3. Compile todos os arquivos `.vhd` do projeto. 
-   *(Nota: Compile primeiro os componentes base, depois os registradores, em seguida o Top-Level e por último o Testbench)*:
-   ```tcl
-   vcom -work work *.vhd
-   ```
-4. Inicie a simulação utilizando o arquivo de testbench principal (`pipeline_tb.vhd`):
-   ```tcl
-   vsim work.pipeline_tb
-   ```
-5. Adicione os sinais de interesse à tela de ondas:
-   ```tcl
-   add wave -position insertpoint sim:/pipeline_tb/DUT/*
-   ```
-6. Rode a simulação por um tempo determinado (exemplo: 1000 nanossegundos):
-   ```tcl
-   run 1000 ns
-   ```
+do ../scripts/sim.do                  # teste padrão (tipo-R)
+do ../scripts/sim.do test_itype.hex   # instruções tipo-I
+do ../scripts/sim.do test_branch.hex  # branches
+do ../scripts/sim.do test_shift.hex   # shifts e comparações
+```
 
-*(Importante: O arquivo `data.dat` deve estar no mesmo diretório da simulação para inicializar as memórias com o código de máquina).*
+O script compila tudo na ordem certa, roda a simulação e imprime os valores finais dos
+registradores no transcript. As formas de onda ficam disponíveis para inspeção.
 
-### 2. Síntese no Quartus
+> O testbench usa VHDL-2008 — o `sim.do` já compila com `vcom -2008`.
+
+### Opção 2 — GHDL (linha de comando, sem interface)
+
+Com o [GHDL](https://github.com/ghdl/ghdl) instalado, na raiz do repositório:
+
+```bash
+bash run_tests.sh
+```
+
+Compila, roda os quatro testes e confere automaticamente se os resultados batem com o
+esperado. É o mesmo script que o CI executa.
+
+---
+
+## Síntese no Quartus
+
 1. Abra o Intel Quartus Prime.
-2. Vá em `File > Open Project...` e selecione o arquivo **`pipeline.qpf`**.
-3. O arquivo `pipeline_toplevel.vhd` já atua como a entidade *Top-Level* do projeto.
-4. Clique em **Compile Design** (Ctrl + L) para verificar a sintaxe, gerar a RTL e analisar o consumo de portas lógicas da FPGA.
+2. `File > Open Project...` e selecione **`quartus/pipeline.qpf`**.
+3. A entidade top-level é `pipeline_toplevel`.
+4. **Compile Design** (Ctrl + L).
 
-## 🛠️ Tecnologias Utilizadas
-* **Linguagem:** VHDL (*VHSIC Hardware Description Language*)
-* **Síntese e Análise RTL:** Intel Quartus Prime
-* **Simulação (Testbench & Waveforms):** ModelSim / QuestaSim
+---
+
+## Testes
+
+Os programas de teste ficam em `programs/`, um arquivo `.hex` por conjunto de instruções
+(uma instrução de 32 bits em hexadecimal por linha). O `instruction_memory` carrega o
+programa escolhido na hora da simulação, então criar um teste novo é criar um `.hex` —
+sem recompilar o processador.
+
+| Programa | Testa | Resultado esperado |
+|---|---|---|
+| `test_rtype.hex` | add, sub, and, or, xor | x10=8, x11=2, x12=1, x13=7, x14=6 |
+| `test_itype.hex` | addi, ori, andi, slli | x10=11, x11=14, x12=40, x13=-1 |
+| `test_branch.hex` | beq (tomado) | x10=42, x11=77 |
+| `test_shift.hex` | slli, srli, slti, sltiu | x10=64, x11=8, x12=1, x13=1 |
+
+A cada *push* ou *pull request*, o GitHub Actions roda todos esses testes automaticamente
+(veja o selo no topo).
+
+---
+
+## Tecnologias
+
+- **Linguagem:** VHDL
+- **Síntese:** Intel Quartus Prime
+- **Simulação:** ModelSim / Questa e GHDL
+- **CI:** GitHub Actions

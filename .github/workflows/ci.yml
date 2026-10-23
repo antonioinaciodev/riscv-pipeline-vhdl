@@ -1,0 +1,28 @@
+# Integração Contínua: roda os testes do processador a cada push ou pull request.
+# Usa o GHDL (simulador VHDL livre) para compilar e executar os testbenches.
+# Se qualquer teste falhar, o workflow falha e o GitHub marca o commit com X.
+
+name: tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  simulacao:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixa o codigo
+        uses: actions/checkout@v4
+
+      - name: Instala o GHDL
+        uses: ghdl/setup-ghdl@v1
+        with:
+          version: nightly
+          backend: mcode
+
+      - name: Roda os testes
+        run: bash run_tests.sh
