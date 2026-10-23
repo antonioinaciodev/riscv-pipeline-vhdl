@@ -14,12 +14,12 @@ port(
 		readDataMEM: in std_logic_vector(31 downto 0);
 		rdRegisterMEM : in std_logic_vector(4 downto 0);
 		
-		memToRegWEB: out std_logic;
-		regWriteWEB: out std_logic;
+		memToRegWB: out std_logic;
+		regWriteWB: out std_logic;
 		
-		aluResultWEB : out std_logic_vector(31 downto 0);
-		readDataWEB: out std_logic_vector(31 downto 0);
-		rdRegisterWEB : out std_logic_vector(4 downto 0)
+		aluResultWB : out std_logic_vector(31 downto 0);
+		readDataWB: out std_logic_vector(31 downto 0);
+		rdRegisterWB : out std_logic_vector(4 downto 0)
 		
 );
 
@@ -32,21 +32,21 @@ begin
 	begin
 		if reset ='1' then
 		
-			memToRegWEB <= '0';
-			regWriteWEB <= '0';
+			memToRegWB <= '0';
+			regWriteWB <= '0';
 		
 			
-			aluResultWEB  <=(others => '0');
-			readDataWEB <= (others=>'0');
-			rdRegisterWEB<= (others=>'0');
+			aluResultWB  <=(others => '0');
+			readDataWB <= (others=>'0');
+			rdRegisterWB<= (others=>'0');
 		elsif rising_edge(clk) then
 		
-			memToRegWEB <= memToRegMEM;
-			regWriteWEB<= regWriteMEM;
+			memToRegWB <= memToRegMEM;
+			regWriteWB<= regWriteMEM;
 			
-			aluResultWEB  <=aluResultMEM;
-			readDataWEB <= readDataMEM;
-			rdRegisterWEB <= rdRegisterMEM;
+			aluResultWB  <=aluResultMEM;
+			readDataWB <= readDataMEM;
+			rdRegisterWB <= rdRegisterMEM;
 		end if;
 	end process;
 end behavioral;

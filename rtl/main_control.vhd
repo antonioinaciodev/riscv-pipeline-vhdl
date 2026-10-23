@@ -1,7 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-entity control is
+entity main_control is
     port (
         -- Entrada
         opcode : in  std_logic_vector(6 downto 0);
@@ -16,9 +16,9 @@ entity control is
         Branch   : out std_logic;
         Jump     : out std_logic 
     );
-end entity control;
+end entity main_control;
 
-architecture behavioral of control is
+architecture behavioral of main_control is
 begin
 
     process(opcode)
@@ -38,8 +38,8 @@ begin
             when "0110011" =>
                 RegWrite <= '1'; ALUOp <= "10";
           
-            when "0010011" =>
-                RegWrite <= '1'; ALUSrc <= '1'; ALUOp <= "00";
+            when "0010011" =>  -- Tipo-I (addi, andi, ori, xori, slli, srli, srai, slti, sltiu)
+                RegWrite <= '1'; ALUSrc <= '1'; ALUOp <= "11";
         
             when "0000011" =>
                 RegWrite <= '1'; MemRead <= '1'; MemtoReg <= '1'; ALUSrc <= '1'; ALUOp <= "00";

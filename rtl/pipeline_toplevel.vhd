@@ -237,7 +237,7 @@ begin
                     rd_addr_out => id_ex_rd_addr, funct7_out => id_ex_funct7,funct3_out => id_ex_funct3
                     );
     -- forwarding unit
-        FORWARDING_UNIT: forwarding_unit port map(
+        FORWARDING_UNIT_INST: forwarding_unit port map(
          id_ex_registerR1 => id_ex_rs1_addr,
          id_ex_registerR2 => id_ex_rs2_addr,
          ex_mem_registerRD => ex_mem_rdRegister,

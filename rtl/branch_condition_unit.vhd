@@ -23,7 +23,7 @@ begin
     sub_result <= signed(read_data_1) - signed(read_data_2);
     is_zero <= '1' when sub_result = 0 else '0';
     is_negative <= sub_result(31);
-    process(funct3, is_zero, is_negative)
+    process(funct3, is_zero, is_negative, read_data_1, read_data_2)
     begin
        
         condition_met <= '0';
