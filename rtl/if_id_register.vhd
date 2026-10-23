@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity if_id_registrador is
+entity if_id_register is
     port (
         clk            : in  std_logic;
         rst            : in  std_logic;
@@ -16,9 +16,9 @@ entity if_id_registrador is
         pc_plus_4_out  : out std_logic_vector(31 downto 0);
         instruction_out: out std_logic_vector(31 downto 0)
     );
-end entity if_id_registrador;
+end entity if_id_register;
 
-architecture behavioral of if_id_registrador is
+architecture behavioral of if_id_register is
 begin
     
     pipeline_reg_process: process(clk, rst)
